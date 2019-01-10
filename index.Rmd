@@ -2,14 +2,160 @@
 title: "Practical Machine Learning Course Project"
 author: "Tanmoy Rath"
 date: "10 January 2019"
-output: html_document
+output: 
+  html_document: 
+    keep_md: yes
 ---
+<script type="text/javascript">
+$(document).ready(function() {
+
+  $chunks = $('.fold');
+
+  $chunks.each(function () {
+
+    // add button to source code chunks
+    if ( $(this).hasClass('s') ) {
+      $('pre.r', this).prepend("<div class=\"showopt\">Show Source</div><br style=\"line-height:22px;\"/>");
+      $('pre.r', this).children('code').attr('class', 'folded');
+    }
+
+    // add button to output chunks
+    if ( $(this).hasClass('o') ) {
+      $('pre:not(.r)', this).has('code').prepend("<div class=\"showopt\">Show Output</div><br style=\"line-height:22px;\"/>");
+      $('pre:not(.r)', this).children('code:not(r)').addClass('folded');
+
+      // add button to plots
+      $(this).find('img').wrap('<pre class=\"plot\"></pre>');
+      $('pre.plot', this).prepend("<div class=\"showopt\">Show Plot</div><br style=\"line-height:22px;\"/>");
+      $('pre.plot', this).children('img').addClass('folded');
+
+    }
+  });
+
+  // hide all chunks when document is loaded
+  $('.folded').css('display', 'none')
+
+  // function to toggle the visibility
+  $('.showopt').click(function() {
+    var label = $(this).html();
+    if (label.indexOf("Show") >= 0) {
+      $(this).html(label.replace("Show", "Hide"));
+    } else {
+      $(this).html(label.replace("Hide", "Show"));
+    }
+    $(this).siblings('code, img').slideToggle('fast', 'swing');
+  });
+});
+</script>
+
+<style>
+.showopt {
+  background-color: #004c93;
+  color: #FFFFFF; 
+  width: 100px;
+  height: 20px;
+  text-align: center;
+  vertical-align: middle !important;
+  float: right;
+  font-family: sans-serif;
+  border-radius: 8px;
+}
+
+.showopt:hover {
+    background-color: #dfe4f2;
+    color: #004c93;
+}
+
+pre.plot {
+  background-color: white !important;
+}
+</style>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Dataset Background
+
+The weight-lifting dataset used in this analysis was obtained from Groupware@LES. You can read more about it on <http://groupware.les.inf.puc-rio.br/har>(see the section on the Weight Lifting Exercise Dataset).
+
+Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions:
+
++ **Class A**, exactly according to the specification,
++ **Class B**, throwing the elbows to the front,
++ **Class C**, lifting the dumbbell only halfway,
++ **Class D**, lowering the dumbbell only halfway &
++ **Class E**, throwing the hips to the front.
+
+Class A corresponds to the specified execution of the exercise, while the other 4 classes correspond to common mistakes.
+
+**The goal of my project is to predict the manner in which they did the exercise** or in other words, to determine the class. This is to be determined by analyzing the data from various accelerometers on the belt, forearm, arm, and dumbell of the 6 participants.
+
+## Data Cleaning & Exploration
+
+```{r, echo=TRUE}
+training <- read.csv(file = "pml-training.csv", na.strings = c("","NA"))
+```
+
+On looking at the dataset, I found that a lot of columns containd NA values, so I decided to check their % of NA per column, before imputing them.
+
+<div class="fold o">
+```{r, echo=TRUE}
+NA_Colmns <- 100 * colSums(is.na(training)) / (dim(training)[1])
+NA_Colmns
+```
+</div>
+
+
+
+As those columns, which were found to have, more than 80% values as NA, I decided to remove them from the dataset.
+
+```{r, echo=TRUE}
+NA_Colmns <- NA_Colmns > 80
+training <- training[, ! NA_Colmns]
+```
+
+Next, I decided to remove the columns that measured time and sequence, because such data would confound the prediction which was to be done solely on data from accelerometers.
+
+```{r, echo=TRUE}
+drops <- c("X", "raw_timestamp_part_1", "raw_timestamp_part_2",
+           "cvtd_timestamp", "new_window", "num_window")
+
+remv_colms <- colnames(training) %in% drops
+training <- training[, !remv_colms]
+```
+
+I also checked for any Near Zero Variance columns and found none.
+```{r, echo=TRUE}
+suppressMessages(library(caret))
+nearZeroVar(training,saveMetrics=FALSE)
+```
+
+Now the data was ready for Exploration
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 

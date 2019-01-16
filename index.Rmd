@@ -76,53 +76,30 @@ nearZeroVar(training,saveMetrics=FALSE)
 
 ## Data Exploration
 
-For **Density plots of columns of training data** see **Appendix**.<br>
-Some of the columns are highly skewed, indicating presence of outliers. They are (with outlier values):
+**Density plots of columns**<br>
+Some of the columns of training data are highly skewed, indicating presence of outliers. They are (with outlier values):
 
 + gyros_dumbbell_x (-204), gyros_dumbbell_y (52), gyros_dumbbell_z (317)
 + gyros_forearm_x (-22), gyros_forearm_y (311), gyros_forearm_z (231)
 + magnet_dumbbell_y (-3600)
 
-Their density plots are shown below (with outlier values). See Appendix for rest of the density plots.
+2 of the density plots are shown below (with outlier values).
 
+<table><tr><td>
 ```{r, echo=FALSE}
-par(mfrow = c(2,2))
+#par(mfrow = c(1,2))
 
 dens <- density(training$gyros_dumbbell_x)
 plot(dens, main="gyros_dumbbell_x (-204)")
 polygon(dens, col="#7F7FFF", border="black")
-
-
-dens <- density(training$gyros_dumbbell_y)
-plot(dens, main="gyros_dumbbell_y (52)")
-polygon(dens, col="#7F7FFF", border="black")
-
-
-dens <- density(training$gyros_dumbbell_z)
-plot(dens, main="gyros_dumbbell_z (317)")
-polygon(dens, col="#7F7FFF", border="black")
-
-
-dens <- density(training$gyros_forearm_x)
-plot(dens, main="gyros_forearm_x (-22)")
-polygon(dens, col="#7F7FFF", border="black")
-
-
-dens <- density(training$gyros_forearm_y)
-plot(dens, main="gyros_forearm_y (311)")
-polygon(dens, col="#7F7FFF", border="black")
-
-
-dens <- density(training$gyros_forearm_z)
-plot(dens, main="gyros_forearm_x (231)")
-polygon(dens, col="#7F7FFF", border="black")
-
-
+```
+</td><td>
+```{r, echo=FALSE}
 dens <- density(training$magnet_dumbbell_y)
 plot(dens, main="magnet_dumbbell_y (-3600)")
 polygon(dens, col="#7F7FFF", border="black")
-
 ```
+</td></tr></table>
 
 #### Outliers Treatment
 
@@ -169,7 +146,10 @@ myTest <- training[-inTrain,]
 
 ## Model : Random Forest
 
-The myTrain data was cross-validated 5 times on the optimal random forest, and from that, the out of sample error was calculated. I used cross-validation of K = 7 so that it isnt very high to introduce more variance, neither too low to introduce any bias. ntree = 400 was used because it had lesser prediction error on myTest, than default ntree=500. I also used parallel processing to reduce the time needed to build the model.
++ The myTrain data was cross-validated 7 times on the optimal random forest, and from that, the out of sample error was calculated. I used cross-validation of K = 7 so that it isnt very high to introduce more variance, neither too low to introduce any bias.
++ ntree = 400 was used because it had lesser prediction error on myTest, than default ntree=500.
++ Setting importance to TRUE allowed the model to build efficient tress based on variable importance which reduces error.
++ I also used parallel processing to reduce the time needed to build the model.
 
 #### Parallel Processing
 
@@ -214,26 +194,35 @@ cv_folds
 acc <- mean(  cv_folds$Accuracy  )*100
 acc
 ```
-The **out of sample error** can be calculated as **100 - acc** as percentage.<br>
+
+
+#### 3. Out of sample error = 0.6930462%<br>
+This can be calculated as 100 - average cross validation accuracy i.e. **100 - acc**.<br>
 ```{r, echo=TRUE}
 100 - acc
 ```
-The **out of sample error** was found to be **0.6930462%**.
 
-#### 3. Final Model OOB error rate = 0.58%<br>
+
+#### 4. Final Model OOB error rate = 0.58%<br>
 This is very very close to the out of sample error.<br>
 ```{r, echo=TRUE}
 modelFit$finalModel
 ```
 
 
-#### 4. Accuracy on the whole training set = 99.89%<br>
+#### 5. Accuracy on the whole training set = 99.89%<br>
 ```{r, echo=TRUE}
 confusionMatrix(   training$classe,   predict( modelFit$finalModel, newdata = training )   )
 ```
 
 
+#### Accuracy Summary
 
++ **Optimal "mtry" accuracy = 99.30695%**
++ **Average cross-validation accuracy = 99.30695%**
++ **Out of sample error = 0.6930462%** (100 - average cross validation accuracy)
++ **Final Model OOB error rate = 0.58%**
++ **Accuracy on the whole training set = 99.89%**
 
 
 ## Model Plots
@@ -258,14 +247,14 @@ plot(modelFit, main="Accuracy vs no. of Predictors")
 
 ## Prediction
 
-#### Prediction accuracy on myTest
+#### 1. Prediction accuracy on myTest
 
 Prediction accuracy on myTest was found to be **99.55%**.
 ```{r, echo=TRUE}
 confusionMatrix(   myTest$classe,   predict( modelFit$finalModel, newdata = myTest )   )
 ```
 
-#### Prediction on pml-testing.csv
+#### 2. Prediction on pml-testing.csv
 
 The pml data was first cleaned. After that the final model was applied for prediction.<br>
 ```{r, echo=TRUE}
@@ -292,13 +281,6 @@ The random forest is a very powerful machine learning algorithm. If time permits
 
 
 
-## Appendix
-
-##### **Density plots:**
-
-+ **training data having outliers (blue)**
-+ **training data with outliers removed (pink)**
-+ **myTrain (cyan)** (75% of cleaned training data)
 
 ```{r, echo=FALSE}
 trn <- read.csv(file = "pml-training.csv", na.strings = c("","NA"))
@@ -328,10 +310,10 @@ testing <- testing[, !remv_colms]
 NAM <- colnames(training)
 NAM_2 <- colnames(testing)
 seqnc <- seq(1,52)
-par(mfrow = c(2,3))
-barplot(table(trn[,53]), col = "#7F7FFF", main=NAM[53])
-barplot(table(training[,53]), col = "#FD7F82", main=NAM[53])
-barplot(table(myTrain[,53]), col = "#00FFFF", main=NAM[53])
+#par(mfrow = c(2,3))
+#barplot(table(trn[,53]), col = "#7F7FFF", main=NAM[53])
+#barplot(table(training[,53]), col = "#FD7F82", main=NAM[53])
+#barplot(table(myTrain[,53]), col = "#00FFFF", main=NAM[53])
 # barplot(table(predict(modelFit, testing)), col = "orange", main=NAM_2[53])
 
 
@@ -339,18 +321,18 @@ barplot(table(myTrain[,53]), col = "#00FFFF", main=NAM[53])
 for(i in seqnc){
         
         dens <- density(trn[,i])
-        plot(dens, main=NAM[i])
-        polygon(dens, col="#7F7FFF", border="black")
+        #plot(dens, main=NAM[i])
+        #polygon(dens, col="#7F7FFF", border="black")
         
         
         dens <- density(training[,i])
-        plot(dens, main=NAM[i])
-        polygon(dens, col="#FD7F82", border="black")
+        #plot(dens, main=NAM[i])
+        #polygon(dens, col="#FD7F82", border="black")
         
         
         dens <- density(myTrain[,i])
-        plot(dens, main=NAM[i])
-        polygon(dens, col="#00FFFF", border="black")
+        #plot(dens, main=NAM[i])
+        #polygon(dens, col="#00FFFF", border="black")
         #07FDFF
         
         #dens <- density(testing[,i])

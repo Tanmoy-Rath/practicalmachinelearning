@@ -259,12 +259,16 @@ confusionMatrix(   myTest$classe,   predict( modelFit$finalModel, newdata = myTe
 The pml data was first cleaned. After that the final model was applied for prediction.<br>
 ```{r, echo=TRUE}
 testing <- read.csv(file = "pml-testing.csv", na.strings = c("","NA"))
+
 NA_Colmns <- (     colSums(is.na(testing)) / (dim(testing)[1])     ) > 0.8
 testing <- testing[, !NA_Colmns]
+
 drops <- c("X", "user_name", "raw_timestamp_part_1", "raw_timestamp_part_2",
            "cvtd_timestamp", "new_window", "num_window", "problem_id")
 remv_colms <- colnames(testing) %in% drops
 testing <- testing[, !remv_colms]
+
+
 
 predict( modelFit$finalModel ,newdata = testing )
 ```
@@ -276,96 +280,3 @@ predict( modelFit$finalModel ,newdata = testing )
 ## Conclusion
 
 The random forest is a very powerful machine learning algorithm. If time permits, with properly tuned parameters, the model's accuracy can be greately amplified. On the training set (pml-training.csv), my model's accuracy was found to be **99.89%**, while the cross-validated(k=7) out of sample error was found to be **0.6930462%**.
-
-
-
-
-
-
-```{r, echo=FALSE}
-trn <- read.csv(file = "pml-training.csv", na.strings = c("","NA"))
-NA_Colmns <- 100 * colSums(is.na(trn)) / (dim(trn)[1])
-NA_Colmns <- NA_Colmns > 80
-trn <- trn[, ! NA_Colmns]
-drops <- c("X", "user_name", "raw_timestamp_part_1", "raw_timestamp_part_2",
-           "cvtd_timestamp", "new_window", "num_window")
-remv_colms <- colnames(trn) %in% drops
-trn <- trn[, !remv_colms]
-
-
-
-testing <- read.csv(file = "pml-testing.csv", na.strings = c("","NA"))
-NA_Colmns <- 100 * colSums(is.na(testing)) / (dim(testing)[1])
-NA_Colmns <- NA_Colmns > 80
-testing <- testing[, ! NA_Colmns]
-drops <- c("X", "user_name", "raw_timestamp_part_1", "raw_timestamp_part_2",
-           "cvtd_timestamp", "new_window", "num_window", "problem_id")
-remv_colms <- colnames(testing) %in% drops
-testing <- testing[, !remv_colms]
-# nearZeroVar(testing,saveMetrics=FALSE)
-# dim(testing)
-
-
-
-NAM <- colnames(training)
-NAM_2 <- colnames(testing)
-seqnc <- seq(1,52)
-#par(mfrow = c(2,3))
-#barplot(table(trn[,53]), col = "#7F7FFF", main=NAM[53])
-#barplot(table(training[,53]), col = "#FD7F82", main=NAM[53])
-#barplot(table(myTrain[,53]), col = "#00FFFF", main=NAM[53])
-# barplot(table(predict(modelFit, testing)), col = "orange", main=NAM_2[53])
-
-
-
-for(i in seqnc){
-        
-        dens <- density(trn[,i])
-        #plot(dens, main=NAM[i])
-        #polygon(dens, col="#7F7FFF", border="black")
-        
-        
-        dens <- density(training[,i])
-        #plot(dens, main=NAM[i])
-        #polygon(dens, col="#FD7F82", border="black")
-        
-        
-        dens <- density(myTrain[,i])
-        #plot(dens, main=NAM[i])
-        #polygon(dens, col="#00FFFF", border="black")
-        #07FDFF
-        
-        #dens <- density(testing[,i])
-        #plot(dens, main=NAM_2[i])
-        #polygon(dens, col="orange", border="black")
-        
-        # abline(v = mean(training[,i]), col = "black", lwd = 2)
-}
-```
-
-
-```{r, echo=FALSE}
-cor_trn <- training[,-53]
-cor_trn <- cor(cor_trn)
-ncolms <- dim(cor_trn)[2]
-
-NAM <- colnames(cor_trn)
-
-ny <- data.frame()
-ctr <- 1
-for(i in 2:ncolms){
-        J <- i-1
-        for(JJ in 1:J){
-                if(   abs(cor_trn[i,JJ]) >= 0.7   ){
-                        ny[ctr,1] <- cor_trn[i,JJ]
-                        ny[ctr,2] <- NAM[i]
-                        ny[ctr,3] <- NAM[JJ]
-                        ctr <- ctr + 1
-                }
-        }
-}
-colnames(ny) <- c("corr coeff","Colm 1","Colm 2")
-ny <- ny[order(-ny[,"corr coeff"]),]
-rownames(ny) <- NULL
-#ny  #print ny to view the table
-```

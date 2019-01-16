@@ -519,12 +519,16 @@ acc</code></pre>
 <h4>2. Prediction on pml-testing.csv</h4>
 <p>The pml data was first cleaned. After that the final model was applied for prediction.<br></p>
 <pre class="r"><code>testing &lt;- read.csv(file = &quot;pml-testing.csv&quot;, na.strings = c(&quot;&quot;,&quot;NA&quot;))
+
 NA_Colmns &lt;- (     colSums(is.na(testing)) / (dim(testing)[1])     ) &gt; 0.8
 testing &lt;- testing[, !NA_Colmns]
+
 drops &lt;- c(&quot;X&quot;, &quot;user_name&quot;, &quot;raw_timestamp_part_1&quot;, &quot;raw_timestamp_part_2&quot;,
            &quot;cvtd_timestamp&quot;, &quot;new_window&quot;, &quot;num_window&quot;, &quot;problem_id&quot;)
 remv_colms &lt;- colnames(testing) %in% drops
 testing &lt;- testing[, !remv_colms]
+
+
 
 predict( modelFit$finalModel ,newdata = testing )</code></pre>
 <pre><code>##  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 
